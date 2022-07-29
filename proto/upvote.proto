@@ -1,0 +1,15 @@
+syntax = "proto3";
+option go_package = "./upvote";
+
+service UpvoteService {
+  rpc UpVote(UpvoteRequest) returns (UpvoteResponse) {}
+}
+
+message UpvoteRequest {
+  string id = 1;
+}
+
+message UpvoteResponse {
+  int64 id = 1;
+  bool success = 2;
+}
