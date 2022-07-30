@@ -52,3 +52,24 @@ func GetAllUsers() []primitive.M {
 	return users
 
 }
+
+// TO-DO = Add feat to downvote user
+func UpvoteUser(id string) primitive.M {
+
+	objId, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": objId}
+	update := bson.M{"$inc": bson.M{"votes": 1}}
+
+	var updatedUser bson.M
+	err := collection.FindOneAndUpdate(context.Background(), filter, update).Decode(&updatedUser)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return updatedUser
+		}
+		log.Fatal(err)
+	}
+
+	return updatedUser
+
+}
