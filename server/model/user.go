@@ -43,7 +43,7 @@ func (s *Server) GetAllUsers(ctx context.Context, in *upvote.GetAllRequest) (*up
 
 func (s *Server) NewVote(ctx context.Context, in *upvote.NewVoteService) (*upvote.NewVoteResponse, error) {
 
-	result := controller.UpvoteUser(in.GetId())
+	result := controller.UpvoteUser(in.GetId(), in.GetUpVote())
 	var user User
 	bsonBytes, _ := bson.Marshal(result)
 	bson.Unmarshal(bsonBytes, &user)
