@@ -53,12 +53,16 @@ func GetAllUsers() []primitive.M {
 
 }
 
-// TO-DO = Add feat to downvote user
-func UpvoteUser(id string) primitive.M {
+// TO-DO = Actually its returning old value, should return the new value
+func UpvoteUser(id string, upvote bool) primitive.M {
+	voteNumber := -1
+	if upvote == true {
+		voteNumber = 1
+	}
 
 	objId, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.M{"_id": objId}
-	update := bson.M{"$inc": bson.M{"votes": 1}}
+	update := bson.M{"$inc": bson.M{"votes": voteNumber}}
 
 	var updatedUser bson.M
 	err := collection.FindOneAndUpdate(context.Background(), filter, update).Decode(&updatedUser)
