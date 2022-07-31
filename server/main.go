@@ -2,7 +2,7 @@ package main
 
 import (
 	upvote "github.com/alexsandron3/klever-test/proto"
-	model "github.com/alexsandron3/klever-test/server/model"
+	"github.com/alexsandron3/klever-test/server/controller"
 
 	"log"
 	"net"
@@ -17,7 +17,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	upv := model.Server{}
+	upv := controller.Server{}
 
 	grpcServer := grpc.NewServer()
 	upvote.RegisterUpvoteServiceServer(grpcServer, &upv)

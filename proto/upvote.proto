@@ -3,10 +3,10 @@ option go_package = "./upvote";
 
 service UpvoteService {
   rpc GetAllUsers(GetAllRequest) returns (GetAllResponse) {}
-  rpc NewVote(NewVoteService) returns (NewVoteResponse) {}
+  rpc NewVote(NewVoteRequest) returns (NewVoteResponse) {}
 }
 
-message NewVoteService {
+message NewVoteRequest {
   string id = 1;
   bool upVote = 2;
 }
