@@ -9,9 +9,9 @@ import (
 )
 
 type User struct {
-	ID    string `json:"_id"`
-	Name  string `json:"name"`
-	Votes int64  `json:"votes"`
+	ID    primitive.ObjectID `json:"_id" bson:"_id"`
+	Name  string             `json:"name"`
+	Votes int64              `json:"votes"`
 }
 
 func GetVoteValue(upvote bool) int16 {

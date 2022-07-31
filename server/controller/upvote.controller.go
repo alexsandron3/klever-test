@@ -17,7 +17,6 @@ type Server struct {
 func (s *Server) GetAllUsers(input *upvote.GetAllRequest, stream upvote.UpvoteService_GetAllUsersServer) error {
 	allUsers, err := service.GetAll()
 
-	fmt.Println(allUsers)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,6 +25,7 @@ func (s *Server) GetAllUsers(input *upvote.GetAllRequest, stream upvote.UpvoteSe
 		res := &upvote.GetAllResponse{
 			Name:  user.Name,
 			Votes: user.Votes,
+			Id:    user.ID.Hex(),
 		}
 		stream.Send(res)
 	}
