@@ -6,16 +6,22 @@ import (
 	"github.com/alexsandron3/klever-test/server/service"
 )
 
-func TestGetVoteValue(t *testing.T) {
-	upvoteValues := []bool{false, true}
-	expectedVoteValues := []int16{-1, 1}
+func TestGetVoteValueWhenTrue(t *testing.T) {
+	upvoteValue := true
+	var expectedVoteValue int16 = 1
 
-	for index, upvoteValue := range upvoteValues {
-		voteValue := service.GetVoteValue(upvoteValue)
-		expectedVoteValue := expectedVoteValues[index]
-		if voteValue != expectedVoteValue {
-			t.Errorf("Expected: %d Received: %d ", expectedVoteValue, voteValue)
-		}
+	voteValue := service.GetVoteValue(upvoteValue)
+	if voteValue != expectedVoteValue {
+		t.Errorf("Expected: %d Received: %d ", expectedVoteValue, voteValue)
+	}
+}
 
+func TestGetVoteValueWhenFalse(t *testing.T) {
+	upvoteValue := false
+	var expectedVoteValue int16 = -1
+
+	voteValue := service.GetVoteValue(upvoteValue)
+	if voteValue != expectedVoteValue {
+		t.Errorf("Expected: %d Received: %d ", expectedVoteValue, voteValue)
 	}
 }
