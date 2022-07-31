@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/url"
+	"os"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,7 +18,16 @@ var collection *mongo.Collection
 
 // TO-DO = Refact this code to use ENV vars and REMOTE database
 func init() {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error while trying to load .env file")
+	}
+	mongoUser := os.Getenv("mongoUser")
+	mongoPass := os.Getenv("mongoPass")
+	mongoCluster := os.Getenv("mongoCluster")
+	uri := "mongodb+srv://" + url.QueryEscape(mongoUser) + ":" + url.QueryEscape(mongoPass) + "@" + mongoCluster + "/?retryWrites=true&w=majority"
+
+	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 
 	if err != nil {

@@ -3,6 +3,7 @@ module github.com/alexsandron3/klever-test
 go 1.18
 
 require (
+	github.com/joho/godotenv v1.4.0
 	go.mongodb.org/mongo-driver v1.10.0
 	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.27.1
