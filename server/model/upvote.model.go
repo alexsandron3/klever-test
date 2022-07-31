@@ -17,7 +17,6 @@ import (
 
 var collection *mongo.Collection
 
-// TO-DO = Refact this code to use ENV vars and REMOTE database
 func init() {
 	err := godotenv.Load()
 	if err != nil {
