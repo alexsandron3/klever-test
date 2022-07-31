@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/alexsandron3/klever-test/server/service"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -65,10 +66,6 @@ func GetAllUsers() []primitive.M {
 
 // TO-DO = Actually its returning old value, should return the new value
 func NewVote(userId string, upvote bool) primitive.M {
-	voteValue := -1
-	if upvote == true {
-		voteValue = 1
-	}
 
 	objId, err := primitive.ObjectIDFromHex(userId)
 
@@ -77,7 +74,7 @@ func NewVote(userId string, upvote bool) primitive.M {
 	}
 
 	filter := bson.M{"_id": objId}
-	update := bson.M{"$inc": bson.M{"votes": voteValue}}
+	update := bson.M{"$inc": bson.M{"votes": service.GetVoteValue(upvote)}}
 
 	var updatedUser bson.M
 	err = collection.FindOneAndUpdate(context.Background(), filter, update).Decode(&updatedUser)
