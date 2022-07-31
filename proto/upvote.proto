@@ -3,7 +3,7 @@ option go_package = "./upvote";
 
 service UpvoteService {
   rpc GetAllUsers(GetAllRequest) returns (stream GetAllResponse) {}
-  rpc NewVote(NewVoteRequest) returns (NewVoteResponse) {}
+  rpc NewVote(stream NewVoteRequest) returns (stream NewVoteResponse) {}
 }
 
 message NewVoteRequest {

@@ -1,8 +1,7 @@
 package controller
 
 import (
-	"context"
-	"fmt"
+	"io"
 	"log"
 
 	upvote "github.com/alexsandron3/klever-test/proto"
@@ -32,18 +31,26 @@ func (s *Server) GetAllUsers(input *upvote.GetAllRequest, stream upvote.UpvoteSe
 	return nil
 }
 
-func (s *Server) NewVote(ctx context.Context, input *upvote.NewVoteRequest) (*upvote.NewVoteResponse, error) {
-	err := service.CheckIfIdIsValid(input.GetId())
+func (s *Server) NewVote(stream upvote.UpvoteService_NewVoteServer) error {
 
-	if err != nil {
-		return nil, err
+	for {
+		req, err := stream.Recv()
+
+		if err == io.EOF {
+			return nil
+		}
+		err = service.CheckIfIdIsValid(req.GetId())
+
+		if err != nil {
+			return err
+		}
+
+		user, err := service.NewVote(req.GetId(), req.GetUpVote())
+
+		if err != nil {
+			return err
+		}
+		stream.Send(&upvote.NewVoteResponse{Name: user.Name, Votes: user.Votes})
+
 	}
-
-	user, err := service.NewVote(input.GetId(), input.GetUpVote())
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &upvote.NewVoteResponse{Name: user.Name, Votes: user.Votes}, nil
 }
