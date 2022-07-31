@@ -8,18 +8,12 @@ import (
 
 	upvote "github.com/alexsandron3/klever-test/proto"
 	"github.com/alexsandron3/klever-test/server/model"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/alexsandron3/klever-test/server/service"
 )
 
 // TO-DO = Change UnimplementedUpvoteServiceServer to type that have more semantic value
 type Server struct {
 	upvote.UnimplementedUpvoteServiceServer
-}
-
-type User struct {
-	ID    string `json:"_id"`
-	Name  string `json:"name"`
-	Votes int64  `json:"votes"`
 }
 
 // TO-DO = Refact this code to return all users
@@ -42,12 +36,17 @@ func (s *Server) GetAllUsers(ctx context.Context, input *upvote.GetAllRequest) (
 }
 
 func (s *Server) NewVote(ctx context.Context, input *upvote.NewVoteRequest) (*upvote.NewVoteResponse, error) {
+	err := service.CheckIfIdIsValid(input.GetId())
 
-	result := model.NewVote(input.GetId(), input.GetUpVote())
-	var user User
+	if err != nil {
+		return nil, err
+	}
 
-	bsonResult, _ := bson.Marshal(result)
-	bson.Unmarshal(bsonResult, &user)
+	user, err := service.NewVote(input.GetId(), input.GetUpVote())
+
+	if err != nil {
+		return nil, err
+	}
 
 	return &upvote.NewVoteResponse{Name: user.Name, Votes: user.Votes}, nil
 }
