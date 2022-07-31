@@ -1,14 +1,11 @@
 package controller
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
+	"io"
 	"log"
 
 	upvote "github.com/alexsandron3/klever-test/proto"
-	"github.com/alexsandron3/klever-test/server/model"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/alexsandron3/klever-test/server/service"
 )
 
 // TO-DO = Change UnimplementedUpvoteServiceServer to type that have more semantic value
@@ -16,38 +13,44 @@ type Server struct {
 	upvote.UnimplementedUpvoteServiceServer
 }
 
-type User struct {
-	ID    string `json:"_id"`
-	Name  string `json:"name"`
-	Votes int64  `json:"votes"`
-}
-
-// TO-DO = Refact this code to return all users
-func (s *Server) GetAllUsers(ctx context.Context, input *upvote.GetAllRequest) (*upvote.GetAllResponse, error) {
-	allUsers := model.GetAllUsers()
-
-	jsonData, err := json.Marshal(allUsers)
+func (s *Server) GetAllUsers(input *upvote.GetAllRequest, stream upvote.UpvoteService_GetAllUsersServer) error {
+	allUsers, err := service.GetAll()
 
 	if err != nil {
 		log.Fatal(err)
 	}
+	for _, user := range allUsers {
 
-	fmt.Printf("%s\n", jsonData)
-
-	return &upvote.GetAllResponse{
-		Id:    "62e53702bb3b492963728230",
-		Name:  "alexsandro",
-		Votes: 000,
-	}, nil
+		res := &upvote.GetAllResponse{
+			Name:  user.Name,
+			Votes: user.Votes,
+			Id:    user.ID.Hex(),
+		}
+		stream.Send(res)
+	}
+	return nil
 }
 
-func (s *Server) NewVote(ctx context.Context, input *upvote.NewVoteRequest) (*upvote.NewVoteResponse, error) {
+func (s *Server) NewVote(stream upvote.UpvoteService_NewVoteServer) error {
 
-	result := model.NewVote(input.GetId(), input.GetUpVote())
-	var user User
+	for {
+		req, err := stream.Recv()
 
-	bsonResult, _ := bson.Marshal(result)
-	bson.Unmarshal(bsonResult, &user)
+		if err == io.EOF {
+			return nil
+		}
+		err = service.CheckIfIdIsValid(req.GetId())
 
-	return &upvote.NewVoteResponse{Name: user.Name, Votes: user.Votes}, nil
+		if err != nil {
+			return err
+		}
+
+		user, err := service.NewVote(req.GetId(), req.GetUpVote())
+
+		if err != nil {
+			return err
+		}
+		stream.Send(&upvote.NewVoteResponse{Name: user.Name, Votes: user.Votes})
+
+	}
 }
