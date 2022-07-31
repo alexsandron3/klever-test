@@ -1,4 +1,4 @@
-package controller
+package model
 
 import (
 	"context"
@@ -31,11 +31,11 @@ func init() {
 func GetAllUsers() []primitive.M {
 	cur, err := collection.Find(context.Background(), bson.D{{}})
 
+	var users []primitive.M
+
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	var users []primitive.M
 
 	for cur.Next(context.Background()) {
 		var user bson.M
@@ -46,34 +46,39 @@ func GetAllUsers() []primitive.M {
 		}
 		users = append(users, user)
 	}
-
 	defer cur.Close(context.Background())
 
 	return users
-
 }
 
 // TO-DO = Actually its returning old value, should return the new value
-func UpvoteUser(id string, upvote bool) primitive.M {
-	voteNumber := -1
+func NewVote(userId string, upvote bool) primitive.M {
+	voteValue := -1
 	if upvote == true {
-		voteNumber = 1
+		voteValue = 1
 	}
 
-	objId, _ := primitive.ObjectIDFromHex(id)
-	filter := bson.M{"_id": objId}
-	update := bson.M{"$inc": bson.M{"votes": voteNumber}}
-
-	var updatedUser bson.M
-	err := collection.FindOneAndUpdate(context.Background(), filter, update).Decode(&updatedUser)
+	objId, err := primitive.ObjectIDFromHex(userId)
 
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	filter := bson.M{"_id": objId}
+	update := bson.M{"$inc": bson.M{"votes": voteValue}}
+
+	var updatedUser bson.M
+	err = collection.FindOneAndUpdate(context.Background(), filter, update).Decode(&updatedUser)
+
+	// TO-DO = Refact to return error user was not found
+	if err != nil {
+
 		if err == mongo.ErrNoDocuments {
 			return updatedUser
 		}
 		log.Fatal(err)
+
 	}
 
 	return updatedUser
-
 }
