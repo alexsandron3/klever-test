@@ -2,12 +2,10 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 
 	upvote "github.com/alexsandron3/klever-test/proto"
-	"github.com/alexsandron3/klever-test/server/model"
 	"github.com/alexsandron3/klever-test/server/service"
 )
 
@@ -16,23 +14,22 @@ type Server struct {
 	upvote.UnimplementedUpvoteServiceServer
 }
 
-// TO-DO = Refact this code to return all users
-func (s *Server) GetAllUsers(ctx context.Context, input *upvote.GetAllRequest) (*upvote.GetAllResponse, error) {
-	allUsers := model.GetAllUsers()
+func (s *Server) GetAllUsers(input *upvote.GetAllRequest, stream upvote.UpvoteService_GetAllUsersServer) error {
+	allUsers, err := service.GetAll()
 
-	jsonData, err := json.Marshal(allUsers)
-
+	fmt.Println(allUsers)
 	if err != nil {
 		log.Fatal(err)
 	}
+	for _, user := range allUsers {
 
-	fmt.Printf("%s\n", jsonData)
-
-	return &upvote.GetAllResponse{
-		Id:    "62e53702bb3b492963728230",
-		Name:  "alexsandro",
-		Votes: 000,
-	}, nil
+		res := &upvote.GetAllResponse{
+			Name:  user.Name,
+			Votes: user.Votes,
+		}
+		stream.Send(res)
+	}
+	return nil
 }
 
 func (s *Server) NewVote(ctx context.Context, input *upvote.NewVoteRequest) (*upvote.NewVoteResponse, error) {

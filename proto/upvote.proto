@@ -2,7 +2,7 @@ syntax = "proto3";
 option go_package = "./upvote";
 
 service UpvoteService {
-  rpc GetAllUsers(GetAllRequest) returns (GetAllResponse) {}
+  rpc GetAllUsers(GetAllRequest) returns (stream GetAllResponse) {}
   rpc NewVote(NewVoteRequest) returns (NewVoteResponse) {}
 }
 

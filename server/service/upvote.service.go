@@ -41,3 +41,15 @@ func NewVote(userId string, vote bool) (user User, err error) {
 	return user, nil
 
 }
+
+func GetAll() (users []User, err error) {
+	allUsers := model.GetAllUsers()
+	var user User
+	for _, result := range allUsers {
+		bsonResult, _ := bson.Marshal(result)
+		bson.Unmarshal(bsonResult, &user)
+		users = append(users, user)
+	}
+
+	return users, nil
+}
