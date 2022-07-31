@@ -7,12 +7,13 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/alexsandron3/klever-test/server/service"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var collection *mongo.Collection
@@ -64,29 +65,20 @@ func GetAllUsers() []primitive.M {
 }
 
 // TO-DO = Actually its returning old value, should return the new value
-func NewVote(userId string, upvote bool) primitive.M {
-
-	objId, err := primitive.ObjectIDFromHex(userId)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+func UpdateVote(voteValue int16, objId primitive.ObjectID) (primitive.M, error) {
 
 	filter := bson.M{"_id": objId}
-	update := bson.M{"$inc": bson.M{"votes": service.GetVoteValue(upvote)}}
+	update := bson.M{"$inc": bson.M{"votes": voteValue}}
 
 	var updatedUser bson.M
-	err = collection.FindOneAndUpdate(context.Background(), filter, update).Decode(&updatedUser)
+	err := collection.FindOneAndUpdate(context.Background(), filter, update).Decode(&updatedUser)
 
-	// TO-DO = Refact to return error user was not found
 	if err != nil {
-
 		if err == mongo.ErrNoDocuments {
-			return updatedUser
+			return nil, status.Errorf(codes.NotFound, "User not found")
 		}
-		log.Fatal(err)
-
+		return nil, status.Errorf(codes.Internal, "An internal error ocurred")
 	}
 
-	return updatedUser
+	return updatedUser, nil
 }
